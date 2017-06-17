@@ -3,6 +3,7 @@ package com.wang.wys.server;
 import com.wang.wys.handler.BizHandler;
 import com.wang.wys.handler.Decoder;
 import com.wang.wys.handler.Encoder;
+import com.wang.wys.handler.TestServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -34,8 +35,8 @@ public class SimpleServer {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             socketChannel.pipeline()
                                     .addLast(new Decoder())
-                                    .addLast(new BizHandler())
-                                    .addLast(new Encoder());
+                                    .addLast(new BizHandler());
+//                            socketChannel.pipeline().addLast(new TestServerHandler());
                         }
                     });
 
