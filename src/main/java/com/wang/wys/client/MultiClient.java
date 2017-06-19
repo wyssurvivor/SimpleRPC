@@ -31,23 +31,23 @@ public class MultiClient {
         }
 
         public void run() {
-//            EventLoopGroup group = new NioEventLoopGroup();
+            // EventLoopGroup group = new NioEventLoopGroup();
+            // 此处如果每次都新建eventloopgroup，那么用不了几个就会报异常，原因暂时未查明。只是查到issue里有人说要使用一个eventloopgroup
             try {
                 Bootstrap bootstrap = new Bootstrap();
-                bootstrap.group(group)
-                        .channel(NioSocketChannel.class)
-                        .remoteAddress(new InetSocketAddress(host, port))
+                bootstrap.group(group).channel(NioSocketChannel.class).remoteAddress(new InetSocketAddress(host, port))
                         .handler(new ChannelInitializer<SocketChannel>() {
                             protected void initChannel(SocketChannel socketChannel) throws Exception {
                                 socketChannel.pipeline().addLast(new SimpleClientHandler());
-//                            socketChannel.pipeline().addLast(new TestClientHandler());
+                                // socketChannel.pipeline().addLast(new
+                                // TestClientHandler());
                             }
                         });
                 ChannelFuture future = bootstrap.connect().sync();
                 future.channel().closeFuture().sync();
             } catch (Exception e) {
                 e.printStackTrace();
-            }finally {
+            } finally {
                 try {
                     group.shutdownGracefully().sync();
                 } catch (InterruptedException e) {
@@ -61,7 +61,7 @@ public class MultiClient {
         String host = "localhost";
         int port = 3494;
         ExecutorService executorService = Executors.newFixedThreadPool(100);
-        for(int i=0;i<90;i++) {
+        for (int i = 0; i < 90; i++) {
             executorService.execute(new ClientThread(host, port));
             Thread.sleep(20);
         }
