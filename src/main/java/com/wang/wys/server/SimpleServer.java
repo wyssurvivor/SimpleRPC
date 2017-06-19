@@ -35,7 +35,8 @@ public class SimpleServer {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             socketChannel.pipeline()
                                     .addLast(new Decoder())
-                                    .addLast(new BizHandler());
+                                    .addLast(new BizHandler())
+                                    .addLast(new Encoder());
 //                            socketChannel.pipeline().addLast(new TestServerHandler());
                         }
                     });

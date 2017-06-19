@@ -1,6 +1,7 @@
 package com.wang.wys.util;
 
 import com.wang.wys.model.Constants;
+import io.netty.buffer.ByteBuf;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -11,14 +12,18 @@ import java.io.OutputStream;
  */
 public class CodecUtil {
 
-    public static void writeMark(ObjectOutputStream stream) throws IOException {
-        stream.writeByte(Constants.MARK[0]);
-        stream.writeByte(Constants.MARK[1]);
-        stream.writeByte(Constants.MARK[2]);
+    public static void writeMark(ByteBuf byteBuf) throws IOException {
+        byteBuf.writeBytes(Constants.MARK);
     }
 
-    public static void writeVersion(ObjectOutputStream stream) throws IOException {
-        stream.writeByte(Constants.CODEC_VERSION);
+    public static void writeVersion(ByteBuf byteBuf) throws IOException {
+        byteBuf.writeByte(Constants.CODEC_VERSION);
+    }
+
+    public static void writeHead(ByteBuf byteBuf, int effectiveLen) throws IOException {
+        writeMark(byteBuf); //写入markword
+        writeVersion(byteBuf); //写入编码格式版本
+        byteBuf.writeInt(effectiveLen); //写入有效数据长度
     }
 
     public static boolean checkMark(byte[] bytes) {
@@ -37,5 +42,24 @@ public class CodecUtil {
         }
 
         return false;
+    }
+
+    public static boolean preCheck(ByteBuf byteBuf) {
+        int len = byteBuf.readableBytes();
+        if (len < 8) { // mark 3bytes, version 1byte, data length 4bytes
+            return false;
+        }
+
+        byte[] markeBytes = new byte[3];
+        byteBuf.readBytes(markeBytes);
+        if (!CodecUtil.checkMark(markeBytes)) {
+            return false;
+        }
+
+        if (!CodecUtil.checkVersion(byteBuf.readByte())) {
+            return false;
+        }
+
+        return true;
     }
 }

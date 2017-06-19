@@ -1,7 +1,10 @@
 package com.wang.wys.handler;
 
+import com.wang.wys.model.Constants;
+import com.wang.wys.model.MsgType;
 import com.wang.wys.model.RPCRequest;
 import com.wang.wys.model.RPCResponse;
+import com.wang.wys.util.CodecUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
@@ -22,11 +25,11 @@ public class SimpleClientHandler extends SimpleChannelInboundHandler {
         System.out.println("client connected");
         RPCRequest rpcRequest = new RPCRequest();
         rpcRequest.setValue("netty connected");
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-        objectOutputStream.writeObject(rpcRequest);
         ByteBuf byteBuf = Unpooled.buffer();
-        byteBuf.writeBytes(byteArrayOutputStream.toByteArray());
+
+        byte[] bytes = rpcRequest.getBytes();
+        CodecUtil.writeHead(byteBuf, bytes.length);
+        byteBuf.writeBytes(rpcRequest.getBytes());
         ctx.writeAndFlush(byteBuf);
     }
 
@@ -34,10 +37,24 @@ public class SimpleClientHandler extends SimpleChannelInboundHandler {
     public void channelRead0(ChannelHandlerContext channelHandlerContext, Object msg) throws Exception {
         System.out.println("receive response");
         ByteBuf byteBuf = (ByteBuf) msg;
-        byte[] bytes = new byte[1024];
-        byteBuf.readBytes(bytes, 0, byteBuf.readableBytes());
-        RPCResponse rpcResponse = (RPCResponse) new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject();
-        System.out.println(rpcResponse.getValue());
+        byteBuf.markReaderIndex();
+        if(!CodecUtil.preCheck(byteBuf)) {
+            byteBuf.resetReaderIndex();
+            return;
+        }
+
+        int dataLen = byteBuf.readInt();
+        if(dataLen < byteBuf.readableBytes()) {
+            byteBuf.resetReaderIndex();
+            return;
+        }
+        byte[] bytes = new byte[dataLen];
+        byteBuf.readBytes(bytes);
+        ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(bytes));
+        byte msgType = stream.readByte();
+        if(msgType == MsgType.RESPONSE.getValue()) {
+            System.out.println(stream.readUTF());
+        }
     }
 
     @Override

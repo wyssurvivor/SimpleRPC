@@ -1,6 +1,8 @@
 package com.wang.wys.handler;
 
+import com.wang.wys.model.MsgType;
 import com.wang.wys.model.RPCRequest;
+import com.wang.wys.util.CodecUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
@@ -18,31 +20,27 @@ import java.util.List;
  */
 public class Decoder extends ByteToMessageDecoder {
 
-    public boolean preCheck(ByteBuf byteBuf) {
-        byte[] markBytes = new byte[3];
-        int msgLen = byteBuf.readInt();
-        ObjectOutputStream stream = new ObjectOutputStream(new ByteArrayOutputStream());
-        if(msgLen+4 < byteBuf.readableBytes()) {
-            return false;
-        }
-
-
-
-    }
-
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
-        int len = byteBuf.readableBytes();
-        if(len < 4 || !preCheck(byteBuf)) {
-            ReferenceCountUtil.release(byteBuf);
-            return ;
+        byteBuf.markReaderIndex();
+        if (!CodecUtil.preCheck(byteBuf)) {
+            byteBuf.resetReaderIndex();
+            return;
         }
 
-        preCheck(byteBuf);
-        byte[] bytes = new byte[1024];
-        byteBuf.readBytes(bytes, 0, byteBuf.readableBytes());
+        int dataLen = byteBuf.readInt();
+        if (byteBuf.readableBytes() < dataLen) {
+            byteBuf.resetReaderIndex();
+            return;
+        }
+        byte[] bytes = new byte[dataLen];
+        byteBuf.readBytes(bytes);
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-        RPCRequest rpcRequest = (RPCRequest)new ObjectInputStream(byteArrayInputStream).readObject();
-        System.out.println("decoding content:"+rpcRequest.getValue());
-        list.add(rpcRequest);
+        ObjectInputStream stream = new ObjectInputStream(byteArrayInputStream);
+        byte msgType = stream.readByte();
+        if (msgType == MsgType.REQUEST.getValue()) {
+            RPCRequest rpcRequest = new RPCRequest();
+            rpcRequest.setValue(stream.readUTF());
+            list.add(rpcRequest);
+        }
     }
 }

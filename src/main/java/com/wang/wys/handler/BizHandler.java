@@ -22,11 +22,12 @@ public class BizHandler extends ChannelInboundHandlerAdapter {
         RPCResponse rpcResponse = new RPCResponse();
         rpcResponse.setValue("res:"+rpcRequest.getValue());
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-        objectOutputStream.writeObject(rpcResponse);
-
-        context.write(Unpooled.copiedBuffer(byteArrayOutputStream.toByteArray()));
+        context.pipeline().writeAndFlush(rpcResponse);
+//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+//        objectOutputStream.writeObject(rpcResponse);
+//        context.pipeline().writeAndFlush(Unpooled.copiedBuffer(byteArrayOutputStream.toByteArray()));
+//        context.write(Unpooled.copiedBuffer(byteArrayOutputStream.toByteArray()));
     }
 
     public void channelReadComplete(ChannelHandlerContext context) {
