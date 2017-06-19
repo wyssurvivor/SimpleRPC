@@ -17,11 +17,10 @@ import java.io.ObjectOutputStream;
  */
 public class BizHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext context, Object msg) throws Exception {
-        System.out.println("handling request");
         RPCRequest rpcRequest = (RPCRequest) msg;
         RPCResponse rpcResponse = new RPCResponse();
         rpcResponse.setValue("res:"+rpcRequest.getValue());
-
+        System.out.println(rpcRequest.getValue()+" received");
         context.pipeline().writeAndFlush(rpcResponse);
 //        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 //        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);

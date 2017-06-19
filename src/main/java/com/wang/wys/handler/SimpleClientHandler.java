@@ -24,7 +24,7 @@ public class SimpleClientHandler extends SimpleChannelInboundHandler {
     public void channelActive(ChannelHandlerContext ctx) throws IOException {
         System.out.println("client connected");
         RPCRequest rpcRequest = new RPCRequest();
-        rpcRequest.setValue("netty connected");
+        rpcRequest.setValue(Thread.currentThread().getName()+" connected");
         ByteBuf byteBuf = Unpooled.buffer();
 
         byte[] bytes = rpcRequest.getBytes();
