@@ -3,36 +3,55 @@ package com.wang.wys.model;
 import com.wang.wys.util.CodecUtil;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Ryan on 17/6/4.
  */
 public class RPCRequest extends Message implements Serializable{
-    public int getVal1() {
-        return val1;
+    Class ifaceClass;
+    String funcName;
+    Class[] paramTypes ;
+    Object[] params ;
+
+    public Class[] getParamTypes() {
+        return paramTypes;
     }
 
-    public void setVal1(int val1) {
-        this.val1 = val1;
+    public void setParamTypes(Class[] paramTypes) {
+        this.paramTypes = paramTypes;
     }
 
-    public int getVal2() {
-        return val2;
+    public Object[] getParams() {
+        return params;
     }
 
-    public void setVal2(int val2) {
-        this.val2 = val2;
+    public void setParams(Object[] params) {
+        this.params = params;
     }
 
-    int val1;
-    int val2;
+    public Class getIfaceClass() {
+        return ifaceClass;
+    }
+
+    public void setIfaceClass(Class ifaceClass) {
+        this.ifaceClass = ifaceClass;
+    }
+
+    public String getFuncName() {
+        return funcName;
+    }
+
+    public void setFuncName(String funcName) {
+        this.funcName = funcName;
+    }
+
 
     public byte[] getBytes() throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream stream = new ObjectOutputStream(byteArrayOutputStream);
-        stream.writeByte(getType());
-        stream.writeInt(val1);
-        stream.writeInt(val2);
+        stream.writeObject(this);
         stream.flush();
         stream.close();
 

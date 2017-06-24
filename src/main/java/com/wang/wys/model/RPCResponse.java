@@ -10,15 +10,15 @@ import java.io.Serializable;
  */
 public class RPCResponse extends Message implements Serializable{
 
-    public int getResult() {
+    public Object getResult() {
         return result;
     }
 
-    public void setResult(int result) {
+    public void setResult(Object result) {
         this.result = result;
     }
 
-    int result;
+    private Object result;
 
     public byte getType() {
         return MsgType.RESPONSE.getValue();
@@ -27,8 +27,7 @@ public class RPCResponse extends Message implements Serializable{
     public byte[] getBytes() throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream stream = new ObjectOutputStream(byteArrayOutputStream);
-        stream.writeByte(getType());
-        stream.writeInt(result);
+        stream.writeObject(this);
         stream.flush();
         stream.close();
 
