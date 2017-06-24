@@ -19,18 +19,12 @@ public class BizHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext context, Object msg) throws Exception {
         RPCRequest rpcRequest = (RPCRequest) msg;
         RPCResponse rpcResponse = new RPCResponse();
-        rpcResponse.setValue("res:"+rpcRequest.getValue());
-        System.out.println(rpcRequest.getValue()+" received");
+        rpcResponse.setResult(rpcRequest.getVal1()+rpcRequest.getVal2());
         context.pipeline().writeAndFlush(rpcResponse);
-//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-//        objectOutputStream.writeObject(rpcResponse);
-//        context.pipeline().writeAndFlush(Unpooled.copiedBuffer(byteArrayOutputStream.toByteArray()));
-//        context.write(Unpooled.copiedBuffer(byteArrayOutputStream.toByteArray()));
     }
 
     public void channelReadComplete(ChannelHandlerContext context) {
-        System.out.println("read complete");
+//        System.out.println("read complete");
         context.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
 
     }

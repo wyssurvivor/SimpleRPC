@@ -15,7 +15,7 @@ import java.io.ObjectOutputStream;
  */
 public class Encoder extends MessageToByteEncoder<RPCResponse> {
     protected void encode(ChannelHandlerContext channelHandlerContext, RPCResponse rpcResponse, ByteBuf byteBuf) throws Exception {
-        System.out.println("in server encoder");
+//        System.out.println("in server encoder");
         byte[] contents = rpcResponse.getBytes();
         CodecUtil.writeHead(byteBuf, contents.length);
         byteBuf.writeBytes(contents);

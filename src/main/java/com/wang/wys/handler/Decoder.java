@@ -39,7 +39,8 @@ public class Decoder extends ByteToMessageDecoder {
         byte msgType = stream.readByte();
         if (msgType == MsgType.REQUEST.getValue()) {
             RPCRequest rpcRequest = new RPCRequest();
-            rpcRequest.setValue(stream.readUTF());
+            rpcRequest.setVal1(stream.readInt());
+            rpcRequest.setVal2(stream.readInt());
             list.add(rpcRequest);
         }
     }

@@ -8,20 +8,31 @@ import java.io.*;
  * Created by Ryan on 17/6/4.
  */
 public class RPCRequest extends Message implements Serializable{
-    String value;
-    public String getValue() {
-        return value;
+    public int getVal1() {
+        return val1;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setVal1(int val1) {
+        this.val1 = val1;
     }
+
+    public int getVal2() {
+        return val2;
+    }
+
+    public void setVal2(int val2) {
+        this.val2 = val2;
+    }
+
+    int val1;
+    int val2;
 
     public byte[] getBytes() throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream stream = new ObjectOutputStream(byteArrayOutputStream);
         stream.writeByte(getType());
-        stream.writeUTF(getValue());
+        stream.writeInt(val1);
+        stream.writeInt(val2);
         stream.flush();
         stream.close();
 
@@ -29,11 +40,11 @@ public class RPCRequest extends Message implements Serializable{
     }
 
     public static void main(String[] args) throws IOException {
-        RPCRequest rpcRequest = new RPCRequest();
-        rpcRequest.setValue("test content");
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream((rpcRequest.getBytes()));
-        ObjectInputStream stream = new ObjectInputStream(byteArrayInputStream);
-        System.out.println(stream.readUTF());
+//        RPCRequest rpcRequest = new RPCRequest();
+//        rpcRequest.setValue("test content");
+//        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream((rpcRequest.getBytes()));
+//        ObjectInputStream stream = new ObjectInputStream(byteArrayInputStream);
+//        System.out.println(stream.readUTF());
     }
 
     public byte getType() {
