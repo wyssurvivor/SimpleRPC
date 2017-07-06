@@ -23,6 +23,19 @@ import java.util.List;
  * Created by Ryan on 17/6/17.
  */
 public class SimpleClientHandler extends SimpleChannelInboundHandler {
+    public SimpleClientHandler(RPCRequest rpcRequest) {
+        this.rpcRequest = rpcRequest;
+    }
+    public RPCRequest getRpcRequest() {
+        return rpcRequest;
+    }
+
+    public void setRpcRequest(RPCRequest rpcRequest) {
+        this.rpcRequest = rpcRequest;
+    }
+
+    private RPCRequest rpcRequest ;
+
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws IOException {

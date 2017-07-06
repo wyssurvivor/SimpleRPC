@@ -1,9 +1,6 @@
-package com.wang.wys.client;
+package com.wang.wys.model;
 
-import com.wang.wys.handler.Decoder;
-import com.wang.wys.handler.Encoder;
 import com.wang.wys.handler.SimpleClientHandler;
-import com.wang.wys.handler.TestClientHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -11,22 +8,37 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 
 /**
- * Created by Ryan on 17/6/17.
+ * Created by Ryan on 17/6/24.
  */
-public class SimpleClient {
-    private final String host;
-    private final int port;
-    public SimpleClient(String host, int port) {
+public class ClientProxy implements InvocationHandler {
+    private String host;
+    private int port;
+
+    public ClientProxy(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
-    public void start() throws Exception{
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        RPCRequest rpcRequest = new RPCRequest();
+        rpcRequest.setIfaceClass(method.getDeclaringClass());
+        rpcRequest.setFuncName(method.getName());
+        rpcRequest.setParamTypes(method.getParameterTypes());
+        rpcRequest.setParams(args);
+        return null;
+    }
+
+    public RPCResponse doRequest(final RPCRequest rpcRequest) throws InterruptedException {
         EventLoopGroup group = new NioEventLoopGroup();
+        RPCResponse response = null;
         try {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group)
@@ -34,7 +46,7 @@ public class SimpleClient {
                     .remoteAddress(new InetSocketAddress(host, port))
                     .handler(new ChannelInitializer<SocketChannel>() {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline().addLast(new SimpleClientHandler(null));
+                            socketChannel.pipeline().addLast(new SimpleClientHandler(rpcRequest));
 //                            socketChannel.pipeline().addLast(new TestClientHandler());
                         }
                     });
@@ -43,9 +55,7 @@ public class SimpleClient {
         } finally {
             group.shutdownGracefully().sync();
         }
-    }
 
-    public static void main(String[] args) throws Exception {
-        new SimpleClient("localhost", 3494).start();
+        return response;
     }
 }
