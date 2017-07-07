@@ -7,6 +7,8 @@ import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.Promise;
 
 import java.io.IOException;
@@ -41,12 +43,20 @@ public class ClientBizHandler extends SimpleChannelInboundHandler<RPCResponse>{
         }
     }
 
-    public Promise<RPCResponse> sendMessage(RPCRequest request, Promise<RPCResponse> promise) {
+    public Promise<RPCResponse> sendMessage(RPCRequest request, final Promise<RPCResponse> promise) {
         synchronized (this) {
             if(messageList == null) {
                 promise.setFailure(new IllegalStateException());
             } else if(messageList.offer(promise)) {
-                this.context.writeAndFlush(request);
+                this.context.writeAndFlush(request).addListener(new GenericFutureListener<Future<? super Void>>() {
+                    public void operationComplete(Future<? super Void> future) throws Exception {
+                        try {
+                            future.get();
+                        } catch (Exception e) {
+                            promise.setFailure(e);
+                        }
+                    }
+                });
             } else {
                 promise.setFailure(new BufferOverflowException());
             }
