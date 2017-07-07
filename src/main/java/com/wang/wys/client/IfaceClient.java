@@ -79,7 +79,10 @@ public class IfaceClient {
     }
 
     public void close() {
+        this.eventExecutor.shutdownGracefully();
+        this.channelPool.close();
         this.group.shutdownGracefully();
+        System.out.println("client close");
     }
 
 }

@@ -27,5 +27,7 @@ public class ClientFactory {
         System.out.println(bizClient.add(1, 1));
         Thread.currentThread().sleep(2000);
         System.out.println(bizClient.add(20, 21));
+        bizClient.close();
+        System.exit(0);
     }
 }

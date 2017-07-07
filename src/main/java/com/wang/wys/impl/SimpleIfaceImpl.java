@@ -10,4 +10,8 @@ public class SimpleIfaceImpl implements SimpleIface {
         Thread.currentThread().sleep(5000);
         return val1 + val2;
     }
+
+    public void close() {
+
+    }
 }

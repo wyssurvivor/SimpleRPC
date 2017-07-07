@@ -16,6 +16,12 @@ public class ClientInvocationHandler implements InvocationHandler {
         this.client = client;
     }
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        String methodName = method.getName();
+        if(methodName.equals("close")) {
+            client.close();
+            return null;
+        }
+
         RPCRequest rpcRequest = new RPCRequest();
         rpcRequest.setIfaceClass(method.getDeclaringClass());
         rpcRequest.setFuncName(method.getName());
