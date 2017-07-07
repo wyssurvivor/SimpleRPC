@@ -4,6 +4,7 @@ import com.wang.wys.handler.Decoder;
 import com.wang.wys.handler.Encoder;
 import com.wang.wys.handler.SimpleClientHandler;
 import com.wang.wys.handler.TestClientHandler;
+import com.wang.wys.model.RPCRequest;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -20,9 +21,11 @@ import java.net.InetSocketAddress;
 public class SimpleClient {
     private final String host;
     private final int port;
-    public SimpleClient(String host, int port) {
+    private final RPCRequest rpcRequest;
+    public SimpleClient(String host, int port, RPCRequest rpcRequest) {
         this.host = host;
         this.port = port;
+        this.rpcRequest = rpcRequest;
     }
 
     public void start() throws Exception{
@@ -34,7 +37,7 @@ public class SimpleClient {
                     .remoteAddress(new InetSocketAddress(host, port))
                     .handler(new ChannelInitializer<SocketChannel>() {
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline().addLast(new SimpleClientHandler(null));
+                            socketChannel.pipeline().addLast(new SimpleClientHandler(rpcRequest));
 //                            socketChannel.pipeline().addLast(new TestClientHandler());
                         }
                     });
@@ -46,6 +49,6 @@ public class SimpleClient {
     }
 
     public static void main(String[] args) throws Exception {
-        new SimpleClient("localhost", 3494).start();
+        new SimpleClient("localhost", 3494, null).start();
     }
 }

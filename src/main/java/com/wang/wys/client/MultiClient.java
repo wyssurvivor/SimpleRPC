@@ -38,7 +38,7 @@ public class MultiClient {
                 bootstrap.group(group).channel(NioSocketChannel.class).remoteAddress(new InetSocketAddress(host, port))
                         .handler(new ChannelInitializer<SocketChannel>() {
                             protected void initChannel(SocketChannel socketChannel) throws Exception {
-                                socketChannel.pipeline().addLast(new SimpleClientHandler());
+                                socketChannel.pipeline().addLast(new SimpleClientHandler(null));
                                 // socketChannel.pipeline().addLast(new
                                 // TestClientHandler());
                             }
